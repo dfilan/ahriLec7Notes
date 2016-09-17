@@ -52,6 +52,7 @@
 
 \newcommand{\ts}{\textsuperscript}
 \newcommand{\cu}{\mathcal{U}}
+\newcommand{\cus}{\mathcal{U}_\text{smooth}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %document
@@ -61,7 +62,7 @@
 \section{Summary}
 This lecture will have two sections: first, an explanation of why and how to change the inner product implicitly used to define functional gradient descent, and secondly, a discussion of how student paper presentations will work, and why they will work that way.
 
-\section{Changing the Inner Product}
+\section{Changing the inner product}
 \label{sec:chang-inner-prod}
 
 For ease of understanding, we will think about our trajectories as discretised vectors, whose $i$\ts{th} component is the position in configuration space of the trajectory at the $i$\ts{th} point in (discrete) time. This vector will look something like
@@ -143,9 +144,142 @@ Suppose instead that we approximate $\cu$ by its first order Taylor expansion, a
   \label{eq:6}
   \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i)\right\}\\
   \intertext{However, we know that this Taylor expansion will be off if we get far away in norm from $\xi_i$, so we add a regularisation term to penalise this:}
-    \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i) + \frac{1}{2} \alpha \|\xi - \xi_i \|_E^2 \right\}\label{eq:7}
+  \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i) + \frac{1}{2} \alpha \|\xi - \xi_i \|_E^2 \right\}\label{eq:7} \\
+  \intertext{This is a quadratic problem in $\xi$, so we can take the gradient of the term inside the curly brackets, set the gradient to zero, and thereby solve the problem. Doing this, we get}
+  &\phantom{= \text{arg min}_\xi \Bigg\{\,\, }0 + \nabla_{\xi_i}\cu + \alpha (\xi - \xi_i)\label{eq:9}
 \end{align}
-This is a quadratic problem in $\xi$, so we can BLAH BLAH
+Setting that expression to 0, we obtain
+\begin{equation}
+  \label{eq:10}
+  \xi_{i+1} = \xi_i - \frac{1}{\alpha} \nabla_{\xi_i} \cu
+\end{equation}
+which is exactly the formula for gradient descent.
+
+\subsubsection{Back to the main track}
+\label{sec:back-main-track}
+
+Remember the example of vectors $a$, $b$, and $c$? Well, gradient descent tends to go to things that are closer in norm, all else being equal. So, if $b$ is closer to $a$ than $c$ is, even if $c$ is better than $b$, gradient descent might well reach $b$ first, because of how much further away $c$ is.
+
+What's the solution? We will change the distance metric (by changing the inner product) so that the sphere of elements of constant distance away from $a$ becomes an ellipsoid, thereby making $c$ closer than $b$.
+
+DIAGRAM HERE
+
+\subsection{How to make a new inner product}
+\label{sec:how-make-new}
+
+All inner products are of the form $\xi_1^\top A \xi_2$, where $A$ is a positive semi-definite matrix. Therefore, we just have to choose a matrix $A$. How?
+
+Since we want our metric to like smooth deformations, let's think of other things that like that. Remember $\cus$? That was defined as
+\begin{equation}
+  \label{eq:11}
+  \cus[\xi] = \frac{1}{2} \int_0^T \|\xi'(t)\|^2 dt
+\end{equation}
+When we discretise, the analogue of this is
+\begin{equation}
+  \cus[\xi] = \frac{1}{2} \sum_{i=0}^N \|q_{i+1} - q_i\|^2\label{eq:12}
+\end{equation}
+
+Suppose we compute the partial derivative of $\cus$ with respect to $q_i$. This is
+\begin{equation}
+  \label{eq:13}
+  \frac{\partial}{\partial q_i}\cus = (\nabla_{\xi}\cus)_i = - (q_{i+1} - q_i) + (q_i - q_{i-1}) = 2q_i - q_{i-1} - q_{i+1}
+\end{equation}
+We're going to form a matrix $A$ such that
+\begin{equation}
+  \label{eq:14}
+  \nabla_{\xi}\cus = A \xi + c
+\end{equation}
+where the constant $c$ will appear because $\nabla_\xi \cus$ depends on the endpoints $q_0$ and $q_{N+1}$, which don't appear in $\xi$. The matrix that does this is
+\begin{equation}
+  \label{eq:15}
+  A =
+  \begin{bmatrix}
+    2 & -1 & & & & \\
+    -1 & 2 & -1 & & & \\
+    & -1 & 2 & -1 & & \\
+    & & \ddots & \ddots & \ddots &  \\
+    & & & -1 & 2 & -1 \\
+    & & & & -1 & 2
+  \end{bmatrix}
+\end{equation}
+This $A$ (the Hessian of $\cus$) will be what we use for our inner product:
+\begin{equation}
+  \label{eq:16}
+  \langle \xi_1, \xi_2 \rangle_A = \xi_1^\top A \xi_2 \text{ and therefore } \|\xi_1 - \xi_2\|_A^2 = (\xi_1 - \xi_2)^\top A (\xi_1 - \xi_2)
+\end{equation}
+
+Going back to our motivational example, we now have that
+
+\begin{align*}
+  \|b - a\|^2_A &= \|b\|_A^2 \\
+                &=
+                  \begin{bmatrix}
+                    0 & 0 & 10 & 0 & 0
+                  \end{bmatrix}
+                  \begin{bmatrix}
+                    2 & -1 & 0 & 0 & 0 \\
+                    -1 & 2 & -1 & 0 & 0 \\
+                    0 & -1 & 2 & -1 & 0 \\
+                    0 & 0 & -1 & 2 & -1 \\
+                    0 & 0 & 0 & -1 & 2
+                  \end{bmatrix}
+                  \begin{bmatrix}
+                    0 \\
+                    0 \\
+                    10 \\
+                    0 \\
+                    0
+                  \end{bmatrix} \\
+                &=\begin{bmatrix}
+                    0 & 0 & 10 & 0 & 0
+                  \end{bmatrix}
+                  \begin{bmatrix}
+                    0 \\
+                    -10 \\
+                    20 \\
+                    -10 \\
+                    0
+                  \end{bmatrix} \\ \pagebreak[0]
+                &= 200 \\
+  \|c - a\|^2_A &=
+                  \begin{bmatrix}
+                    0 & 5 & 10 & 5 & 0
+                  \end{bmatrix}
+                  \begin{bmatrix}
+                    2 & -1 & 0 & 0 & 0 \\
+                    -1 & 2 & -1 & 0 & 0 \\
+                    0 & -1 & 2 & -1 & 0 \\
+                    0 & 0 & -1 & 2 & -1 \\
+                    0 & 0 & 0 & -1 & 2
+                  \end{bmatrix}
+                  \begin{bmatrix}
+                    0 \\
+                    5 \\
+                    10 \\
+                    5 \\
+                    0
+                  \end{bmatrix} \\
+                &=\begin{bmatrix}
+                    0 & 5 & 10 & 5 & 0
+                  \end{bmatrix}
+                  \begin{bmatrix}
+                    -5 \\
+                    0 \\
+                    10 \\
+                    0 \\
+                    -5
+                  \end{bmatrix} \\
+                &= 100 \\
+\end{align*}
+
+So it worked!
+
+[there was a bit here where it talked about how gradient descent would now push a three-point trajectory to become uniform, but I don't see how that works on reflection, since we don't know what the cost function is, and that could well be higher for smoother gradients]
+
+\subsection{How to do gradient descent now}
+\label{sec:how-do-gradient}
+
+blah blah blah
 
 \end{document}
 %%% Local Variables:
