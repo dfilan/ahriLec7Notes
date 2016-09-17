@@ -4,6 +4,7 @@
 \usepackage[sc]{mathpazo}                   
 %\renewcommand{\sfdefault}{kurier}
 
+\usepackage{mathtools}
 
 \usepackage{graphics}
 \setlength{\oddsidemargin}{0.25 in}
@@ -49,15 +50,102 @@
 }
 % what is the third argument to this command for?
 
+\newcommand{\ts}{\textsuperscript}
+\newcommand{\cu}{\mathcal{U}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %document
 \begin{document}
-%modify this
 \lecture{7}{Trajectory Optimisation Part III}{}{Daniel Filan and Davis Foote}
 
-\section{What \& Why}
+\section{Summary}
 This lecture will have two sections: first, an explanation of why and how to change the inner product implicitly used to define functional gradient descent, and secondly, a discussion of how student paper presentations will work, and why they will work that way.
+
+\section{Changing the Inner Product}
+\label{sec:chang-inner-prod}
+
+For ease of understanding, we will think about our trajectories as discretised vectors, whose $i$\ts{th} component is the position in configuration space of the trajectory at the $i$\ts{th} point in (discrete) time. This vector will look something like
+\begin{equation}
+  \label{eq:1}
+  \xi =
+  \begin{bmatrix}
+    q_1 \\
+    q_2 \\
+    q_3 \\
+    \vdots \\
+    q_N
+  \end{bmatrix}
+\end{equation}
+Since we won't consider changing the start or end points of the trajectory, we leave out the initial configuration $q_0$ and the final configuration $q_{N+1}$. We should also remember that each element of this vector is itself a vector, rather than simply a scalar.
+
+So far, we have been using the Euclidean inner product, defined as
+\begin{equation}
+  \label{eq:2}
+  \langle \xi_1, \xi_2 \rangle_E = \xi_1^{\top} \xi_2 = q_{1,1}^{\top}q_{2,1} + \dotsb + q_{1,N}^\top q_{2,N}
+\end{equation}
+
+Why would we want to change this? Well, an inner product defines a norm by $\|\xi\| = \sqrt{\langle \xi, \xi \rangle}$, and a norm defines a distance metric defined by $\text{distance}(\xi_1, \xi_2) = \| \xi_1 - \xi_2 \|$. Therefore, we might ask ourselves whether the Euclidean metric induced by the Euclidean inner product is any good.
+
+\subsection{Why the Euclidean metric isn't good}
+\label{sec:why-euclidean-metric}
+
+Consider three trajectories of a robot with one degree of freedom:
+
+DIAGRAM HERE
+
+\begin{equation}
+  \label{eq:3}
+  a =
+  \begin{bmatrix}
+    0 \\
+    0 \\
+    0 \\
+    0 \\
+    0
+  \end{bmatrix},\, b =
+  \begin{bmatrix}
+    0 \\
+    0 \\
+    10 \\
+    0 \\
+    0
+  \end{bmatrix}, \text{ and } c =
+  \begin{bmatrix}
+    0 \\
+    5 \\
+    10 \\
+    5 \\
+    0
+  \end{bmatrix}
+\end{equation}
+
+Which is closer to $a$: $b$ or $c$? Well,
+\begin{equation}
+  \label{eq:4}
+  \|a - b \|^2_E = \langle b, b \rangle_E = 10 \times 10 = 100
+\end{equation}
+and
+\begin{equation}
+  \label{eq:5}
+  \|a - c \|^2_E = \langle c, c \rangle_E = 5 \times 5 + 10 \times 10 + 5 \times 5 = 150
+\end{equation}
+Therefore, according to the Euclidean metric, $b$ is closer to $a$ than $c$ is. However, intuitively, there's something wrong with this. $a$ involves very smooth motion, $b$ is super jerky, and $c$ involves a bit of a jerk, but less so than $b$. The Euclidean metric can't notice this because it doesn't take the orderings of elements of the vector into account, and therefore can't talk about speeds, but it would be nice if we could take time into account somehow.
+
+Can we give a more rigorous argument for why we should change metric?
+
+\subsubsection{Detour 1}
+\label{sec:detour-1-1}
+
+The formula for gradient descent, as we know, is $\xi_{i+1} = \xi_i - (1/\alpha)\nabla_{\xi_i}\cu$. But where does this come from?
+
+Suppose instead that we approximate $\cu$ by its first order Taylor expansion, and try to minimise that. Then, we would use the rule
+\begin{align}
+  \label{eq:6}
+  \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i)\right\}\\
+  \intertext{However, we know that this Taylor expansion will be off if we get far away in norm from $\xi_i$, so we add a regularisation term to penalise this:}
+    \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i) + \frac{1}{2} \alpha \|\xi - \xi_i \|_E^2 \right\}\label{eq:7}
+\end{align}
+This is a quadratic problem in $\xi$, so we can BLAH BLAH
 
 \end{document}
 %%% Local Variables:
