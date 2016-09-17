@@ -1,5 +1,8 @@
 ## shamelessly stolen from https://github.com/github/gitignore
 
+## except for this part: get rid of auto-generated emacs files
+*~
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
