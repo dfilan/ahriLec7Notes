@@ -274,10 +274,39 @@ Going back to our motivational example, we now have that
 
 So it worked!
 
-[there was a bit here where it talked about how gradient descent would now push a three-point trajectory to become uniform, but I don't see how that works on reflection, since we don't know what the cost function is, and that could well be higher for smoother gradients]
+To better understand the structure of the $A$ inner product, we can consider doing gradient descent with respect to $\cus$ on a straight line trajectory with three points, one of which is closer to the end than the start. The gradient of $\cus$ will be the sum of the vector pointing from the start point to the middle, and the vector from the end point to the middle. This will push the middle point closer to the middle of the trajectory, until it's exactly in the middle, meaning that the $C$-space velocity of the trajectory is constant.
+
+DIAGRAM HERE
 
 \subsection{How to do gradient descent now}
 \label{sec:how-do-gradient}
+
+Now that we have our new inner product, how should we do gradient descent? Well, if we modify Equation \eqref{eq:7} to use the $A$-norm instead of the Euclidean norm, we get
+\begin{align}
+  \label{eq:8}
+  \xi_{i+1} &= \text{arg min}_\xi \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^\top(\xi - \xi_i) + \frac{1}{2}\alpha \| \xi - \xi_i \|_A^2 \right\}\\
+  \intertext{Taking the gradient of the terms inside the curly braces, we get}
+            &\phantom{- \text{arg min}_\xi \bigg\{  }0 + \nabla_{\xi_i}\cu + \alpha A (\xi - \xi_i) \label{eq:17} \\
+  \intertext{Setting this gradient to zero, we obtain}
+  \xi_{i + 1} &= \xi_i - \frac{1}{\alpha} A^{-1}\nabla_{\xi_i}\cu
+\end{align}
+So here's our equation for gradient descent! But is it correct? Since we're using the new inner product, the term $\nabla_{\xi_i}\cu^\top(\xi - \xi_i)$ should be replaced by $\langle \nabla_{\xi_i}\cu, \xi - \xi_i \rangle_A$, right? Well, that's true, but it's only half of the story: we also have to change from the Euclidean gradient $\nabla_{\xi_i}$ to the $A$-gradient $\nabla^A_{\xi_i}$. We can actually calculate this gradient directly by considering the first-order Taylor expansion of $\cu$ using both inner products:
+\begin{align}
+  \label{eq:18}
+  \cu[\xi] &\approx \cu[\xi_i] + \nabla^A_{\xi_i}\cu^\top A (\xi - \xi_i) \\
+\label{eq:19}  &\approx \cu[\xi_i] + \nabla_{\xi_i} \cu^\top (\xi - \xi_i)
+\end{align}
+These expansions have to be the same, since we're talking about the same function, and the inner products are topologically equivalent, so they have the same notion of limits of small distances. Therefore, the terms on the right must be equal, meaning that
+\begin{equation}
+  \label{eq:20}
+  \nabla_{\xi_i}^A \cu = A^{-1} \nabla_{\xi_i}\cu
+\end{equation}
+This agrees with our other attempt at an equation for gradient descent! It also makes clear that the new gradient takes the old gradient and `smears it out' along the trajectory. To get a better sense of this, try calculating it for some problems and see what happens!
+
+In summary, it's like we've turned trajectories into plastic bands: it's hard to move one point in the trajectory without moving the other ones along as well.
+
+\section{Student paper presentations}
+\label{sec:stud-paper-pres}
 
 blah blah blah
 
