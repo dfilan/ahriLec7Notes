@@ -92,7 +92,9 @@ Why would we want to change this? Well, an inner product defines a norm by $\|\x
 
 Consider three trajectories of a robot with one degree of freedom:
 
-DIAGRAM HERE
+\begin{center}
+\includegraphics[scale=0.3]{figures/trajectory_illustration.png}
+\end{center}
 
 \begin{equation}
   \label{eq:3}
@@ -143,11 +145,12 @@ Suppose instead that we approximate $\cu$ by its first order Taylor expansion, a
 \begin{align}
   \label{eq:6}
   \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i)\right\}\\
-  \intertext{However, we know that this Taylor expansion will be off if we get far away in norm from $\xi_i$, so we add a regularisation term to penalise this:}
+  \intertext{However, we know that this Taylor expansion will be off if we get far away in norm from $\xi_i$, so we add a regularisation term to penalise this\footnotemark:}
   \xi_{i+1} &= \text{arg min}_{\xi} \left\{ \cu[\xi_i] + \nabla_{\xi_i}\cu^{\top} (\xi - \xi_i) + \frac{1}{2} \alpha \|\xi - \xi_i \|_E^2 \right\}\label{eq:7} \\
   \intertext{This is a quadratic problem in $\xi$, so we can take the gradient of the term inside the curly brackets, set the gradient to zero, and thereby solve the problem. Doing this, we get}
   &\phantom{= \text{arg min}_\xi \Bigg\{\,\, }0 + \nabla_{\xi_i}\cu + \alpha (\xi - \xi_i)\label{eq:9}
 \end{align}
+\footnotetext{Alternatively, we can arrive at this by considering a trust-region constraint where we set some bound on how far from $\xi_i$ we are allowed to move. If we write out the Lagrangian, we arrive at equation \eqref{eq:10} where $\alpha$ is the Lagrange multiplier.}
 Setting that expression to 0, we obtain
 \begin{equation}
   \label{eq:10}
@@ -162,7 +165,9 @@ Remember the example of vectors $a$, $b$, and $c$? Well, gradient descent tends 
 
 What's the solution? We will change the distance metric (by changing the inner product) so that the sphere of elements of constant distance away from $a$ becomes an ellipsoid, thereby making $c$ closer than $b$.
 
-DIAGRAM HERE
+\begin{center}
+\includegraphics[scale=0.3]{figures/balls.png}
+\end{center}
 
 \subsection{How to make a new inner product}
 \label{sec:how-make-new}
@@ -276,7 +281,9 @@ So it worked!
 
 To better understand the structure of the $A$ inner product, we can consider doing gradient descent with respect to $\cus$ on a straight line trajectory with three points, one of which is closer to the end than the start. The gradient of $\cus$ will be the sum of the vector pointing from the start point to the middle, and the vector from the end point to the middle. This will push the middle point closer to the middle of the trajectory, until it's exactly in the middle, meaning that the $C$-space velocity of the trajectory is constant.
 
-DIAGRAM HERE
+\begin{center}
+\includegraphics[scale=0.3]{figures/gradient_nudge.png}
+\end{center}
 
 \subsection{How to do gradient descent now}
 \label{sec:how-do-gradient}
@@ -303,7 +310,7 @@ These expansions have to be the same, since we're talking about the same functio
 \end{equation}
 This agrees with our other attempt at an equation for gradient descent! It also makes clear that the new gradient takes the old gradient and `smears it out' along the trajectory. To get a better sense of this, try calculating it for some problems and see what happens!
 
-In summary, it's like we've turned trajectories into plastic bands: it's hard to move one point in the trajectory without moving the other ones along as well.
+In summary, it's like we've turned trajectories into elastic bands: it's hard to move one point in the trajectory without moving the other ones along as well.
 
 \section{Student paper presentations}
 \label{sec:stud-paper-pres}
@@ -318,9 +325,11 @@ Essentially, you should pretend that you wrote the paper, and are presenting it 
 \begin{itemize}
 \item Don't just procedurally go through the paper explaining definitions and theorems in order.
 \item Identify the key insight! There will be one main insight in the paper, like ``if the final point of the trajectory can be on a manifold, it's easier to find solutions''. Explain the insight and how it helps.
-\item Daniel Dennet: ``You should attempt to re-express your [paper's] position so clearly, vividly, and fairly that [the author would say], `Thanks, I wish I’d thought of putting it that way'.''
+\item Daniel Dennet: ``You should attempt to re-express your [paper's] position so clearly, vividly, and fairly that [the author would say], `Thanks, I wish I'd thought of putting it that way'.''
 \item Use an hourglass structure, where the big ideas come in at the start and the end. First should be the motivation, then the problem statement and why it's hard, then the key insight of the paper, then the nitty-gritty details and results, and at the end restating the key insight and how it helped solve the problem.
-\item DIAGRAM HERE
+\begin{center}
+\includegraphics[scale=0.3]{figures/hourglass.png}
+\end{center}
 \item It would also be good to include demos, videos, etc.
 \item Relate back to the lecture material as much as possible. This involves not only translating the notation, but explaining how it fits in with the material we covered, such as showing that something we said was hard was actually easy, or how an algorithm we talked about was developed, or alternatives to an algorithm, etc.
 \end{itemize}
@@ -338,7 +347,7 @@ Essentially, you should talk about how you would improve the paper.
   \item Relate back to the lecture material as much as possible. This involves not only translating the notation, but explaining how it fits in with the material we covered, such as showing that something we said was hard was actually easy, or how an algorithm we talked about was developed, or alternatives to an algorithm, etc.
 \end{itemize}
 
-\subsection{Advise about presenting}
+\subsection{Advice about presenting}
 \label{sec:advise-about-pres}
 
 \begin{itemize}
